@@ -10,6 +10,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = isset($_POST['email']) ? $_POST['email'] : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
 
+    if(!empty($name) && !empty($surname) && !empty($birthdate) && !empty($email) && !empty($password)){
+        $filePath = './user.csv';
+
+        $file = fopen($filePath, 'a');
+        if ($file === false) {
+            die("Не удалось открыть файл для записи.");
+        }
+
+        fputcsv($file, [$name, $surname, $birthdate, $email, $password]);
+
+        fclose($file);
+
+        header('Location: index.php?status=success');
+    } else {
+        header( 'Location: index.php?status=error');
+    }
+    
+
     // Вставляем данные в базу данных
     $stmt = $pdo->prepare("INSERT INTO registrations (name, surname, birthdate, email, password) VALUES (?, ?, ?, ?, ?)");
     $stmt->execute([$name, $surname, $birthdate, $email, $password]);
@@ -52,6 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" class="btn btn-primary">Отправить</button>
         </form>
+    </div>
+
+    <div class="text-center">
+            <a href="userform.php" class="btn btn-secondary mb-3">К CSV файлу</a>
     </div>
 
     <div class="container mt-5">
