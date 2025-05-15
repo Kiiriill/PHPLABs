@@ -18,21 +18,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die("Не удалось открыть файл для записи.");
         }
 
-        fputcsv($file, [$name, $surname, $birthdate, $email, $password]);
+        // Добавляем параметр escape
+        fputcsv($file, [$name, $surname, $birthdate, $email, $password], ',', '"', '\\');
 
         fclose($file);
 
+        // Вставляем данные в базу данных
+        $stmt = $pdo->prepare("INSERT INTO registrations (name, surname, birthdate, email, password) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $surname, $birthdate, $email, $password]);
+
         header('Location: index.php?status=success');
+        exit; // Важно завершить выполнение после редиректа
     } else {
-        header( 'Location: index.php?status=error');
+        header('Location: index.php?status=error');
+        exit; 
     }
-    
-
-    // Вставляем данные в базу данных
-    $stmt = $pdo->prepare("INSERT INTO registrations (name, surname, birthdate, email, password) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$name, $surname, $birthdate, $email, $password]);
-
-    echo "Данные успешно сохранены!";
 }
 ?>
 
